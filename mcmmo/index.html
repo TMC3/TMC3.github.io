@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<!--
+MCMMO Calculator
+(C) Kluge & Luciano 2015
+kluge.ninja
+lucianoalberto.zapto.org
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1, width=device-width, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>MCMMO Calculator</title>
+
+    <!-- LOAD ALL OF THE SCRIPTS FIRST BECAUSE I CAN -->
+	<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+	<script src="js/jquery.nicescroll.js"></script>
+	<!-- AND THE STYLESHEETS TOO -->
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/fonts.css">
+	<link rel="stylesheet" href="css/animate.css">
+	<link rel="stylesheet" href="css/mcmmo.css">
+	<link rel="stylesheet" href="css/drop-theme-arrows.css" />
+	<script src="js/drop.min.js"></script>
+		
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  <script>
+  $(document).ready(function() {
+    $("html").niceScroll({ 
+    	scrollspeed: 80,
+    	mousescrollstep: 60,
+    	cursorborder: '0px',
+    	cursorcolor: "green"
+    });
+    
+    	$('a[href*=#]:not([href=#])').click(function() {
+		    if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'') && location.hostname == this.hostname) {
+		      var target = $(this.hash);
+		      target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+		      if (target.length) {
+		        $('html,body').animate({
+		          scrollTop: target.offset().top
+		        }, 1000);
+		        return false;
+		      }
+		    }
+	    });
+
+    	$('#question-2, #question-1').keyup(function() {
+    		calc();
+    	});
+
+    });
+
+	</script>
+	<style type="text/css">
+	
+	</style>
+  </head>
+<body>
+
+<section class="wrapper">
+
+<form>
+<section class="question" id="q1">
+<label for="question-1"><h2>Current MCMMO Level in <span class="dropdownselector" id="skillname">Mining</span>:</h2></label>
+<input type="text" class="questioninput" id="question-1">
+</section>
+<section class="question" id="q2">
+<label for="question-2"><h2>Desired MCMMO Level:</h2></label>
+<input type="text" class="questioninput" id="question-2">
+</section>
+</form>
+
+<div class="resultbox">
+	<div class="result-item" id="xp">
+		<h2 class="result-title">You need <span id="amount_xp">...</span> XP</h2>
+	</div>
+	<div class="result-item" id="item">
+		<h2 class="result-title">Which means you'll need to <span id="action">break</span> <span id="amount_item">...</span> <span id="block_type">???</span></h2>
+	</div>
+	<div class="result-item" id="doubles_item">
+	<h2 class="result-title">Which is about <span id="amount_doubles_item">...</span> doublechests</h2>
+	</div>
+</div>
+</section>
+
+<div class="dropdowncontentbox" style="display: none">
+<div class="dropdowncontent">
+<ul>
+<li value="mining" onclick="update($(this).attr('value'));">Mining</li>
+<li value="herbalism" onclick="update($(this).attr('value'));">Herbalism</li>
+<li value="woodcutting" onclick="update($(this).attr('value'));">Woodcutting</li>
+<li value="excavation" onclick="update($(this).attr('value'));">excavation</li>
+<li value="repair" onclick="update($(this).attr('value'));">repair</li>
+<li value="swords" onclick="update($(this).attr('value'));">swords</li>
+<li value="acrobatics" onclick="update($(this).attr('value'));">acrobatics</li>
+<li value="fishing" onclick="update($(this).attr('value'));">fishing</li>
+<li value="axes" onclick="update($(this).attr('value'));">axes</li>
+<li value="unarmed" onclick="update($(this).attr('value'));">unarmed</li>
+<li value="taming" onclick="update($(this).attr('value'));">taming</li>
+<li value="archery" onclick="update($(this).attr('value'));">archery</li>
+<li value="alchemy" onclick="update($(this).attr('value'));">alchemy</li>
+</ul>
+</div>
+</div>
+
+<footer class="footer">
+<span class="copyright">&copy; Kluge and Luciano 2015</span>
+</footer>
+
+<script type="text/javascript">
+	function GET(name) {
+	    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+	        results = regex.exec(location.search);
+	    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+	var drop = new Drop({
+		  target: document.querySelector('.dropdownselector'),
+		  content: $('.dropdowncontentbox').html(),
+		  position: 'bottom middle',
+		  openOn: 'click'
+	});
+	function sT(t) {
+		$('#block_type').text(t);
+	}
+	function sA(t) {
+		$('#action').text(t);
+	}
+
+	var a = 39;
+	var b = 21311;
+	var numPer = 30; //change this depending on how much the block gives
+	function update(value) {
+		drop.close();
+		var val = value;
+		$('#skillname').text(val);
+		switch(val) {
+			case 'mining':
+				sT('Stone');
+				sA('break');
+				numPer = 39;
+				break;
+			case 'herbalism':
+				sT('Sugarcane');
+				sA('break');
+				numPer = 70;
+				break;
+			case 'woodcutting':
+				sT('Logs');
+				sA('break');
+				numPer = 80;
+				break;
+			case 'excavation':
+				sT('Dirt');
+				sA('break');
+				numPer = 80;
+				break;
+			case 'repair':
+				sT('Diamond Picks');
+				sA('fully repair');
+				numPer = 80;
+				break;
+			case 'swords':
+				sT('Creepers');
+				sA('hit');
+				numPer = 80;
+				break;
+			case 'acrobatics':
+				sT('Blocks');
+				sA('fall');
+				numPer = 80;
+				break;
+			case 'fishing':
+				sT('Fish');
+				sA('catch');
+				numPer = 80;
+				break;
+			case 'axes':
+				sT('Creepers');
+				sA('hit');
+				numPer = 80;
+				break;
+			case 'unarmed':
+				sT('Creepers');
+				sA('punch');
+				numPer = 80;
+				break;
+			case 'taming':
+				sT('Pets');
+				sA('tame');
+				numPer = 80;
+				break;
+			case 'archery':
+				sT('Creepers');
+				sA('shoot');
+				numPer = 80;
+				break;
+			case 'alchemy':
+				sT('Potions');
+				sA('brew');
+				numPer = 80;
+				break;
+			default:
+				sT('Stone');
+				sA('break');
+				numPer = 39;
+				break;
+		}
+		calc();
+		checkIfChestable(val);
+	}
+
+	update('mining');
+
+	function calc() {
+		var curExp = parseInt($('#question-1').val());
+		var tarExp = parseInt($('#question-2').val());
+		var xpneeded = ((tarExp - curExp) * 0.5) * (((curExp * a) - b) + ((tarExp * a) -b));
+		if (isNaN(xpneeded)) {
+			$('#amount_xp').text('...');
+		} else {
+			$('#amount_xp').text(xpneeded.toFixed(2));
+		}
+
+		var numBlock = xpneeded / numPer;
+		if (isNaN(numBlock)) {
+			$('#amount_item').text('...');
+		} else {
+			$('#amount_item').text(numBlock.toFixed(2));
+		}
+
+		var numChests = numBlock / (54 * 64);
+		if (isNaN(numChests)) {
+			$('#amount_doubles_item').text('...');
+		} else {	
+			$('#amount_doubles_item').text(numChests.toFixed(2));
+		}
+	}
+	function checkIfChestable(skill) {
+		switch(skill) {
+			case 'mining':
+			case 'herbalism':
+			case 'woodcutting':
+			case 'excavation':
+			default:
+				$('#doubles_item').fadeIn();
+				break;
+			case 'repair':
+			case 'swords':
+			case 'acrobatics':
+			case 'fishing':
+			case 'axes':
+			case 'unarmed':
+			case 'taming':
+			case 'archery':
+			case 'alchemy':
+				$('#doubles_item').fadeOut();
+				break;
+		}
+	}
+	if (GET('skill') != '')	update(GET('skill'));
+    
+</script>
+</body>
+</html>
